@@ -31,6 +31,7 @@ class ViewController: UIViewController {
         label.text = "R$0,00"
         label.font = UIFont(name: "HelveticaNeue-CondensedBlack", size: 40)
         label.textColor = .systemOrange
+        label.numberOfLines = 0
         return label
     }()
     
@@ -46,6 +47,30 @@ class ViewController: UIViewController {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
         setupLayout()
+        loadPrice()
+    }
+    
+    func recoverPrice() {
+        updateButton.addTarget(self, action: #selector(buttonTapped), for: .touchUpInside)
+    }
+    
+    @objc func buttonTapped() {
+        loadPrice()
+    }
+    
+    func formatPrice(price: NSNumber) -> String {
+        let numberFormatter = NumberFormatter()
+        numberFormatter.numberStyle = .decimal
+        numberFormatter.locale = Locale(identifier: "pt_BR")
+        
+        if let finalPrice = numberFormatter.string(from: price) {
+            return finalPrice
+        }
+        return "0,00"
+    }
+    
+    func loadPrice() {
+        self.updateButton.setTitle("Atualizando", for: .normal)
         
         if let url = URL(string: "https://www.blockchain.com/pt/ticker") {
             let task = URLSession.shared.dataTask(with: url) { data, response, error in
@@ -57,7 +82,12 @@ class ViewController: UIViewController {
                                 as? [String: Any] {
                                 if let brl = objectJson["BRL"] as? [String: Any] {
                                     if let buyBitcoin = brl["buy"] as? Double {
-                                        print(buyBitcoin)
+                                        let priceFormat = self.formatPrice(price: NSNumber(value: buyBitcoin))
+                                        print(priceFormat)
+                                        DispatchQueue.main.async(execute: {
+                                            self.numberLabel.text = "R$" + priceFormat
+                                            self.updateButton.setTitle("Atualizar", for: .normal)
+                                        })
                                     }
                                 }
                                 //print(objectJson)
