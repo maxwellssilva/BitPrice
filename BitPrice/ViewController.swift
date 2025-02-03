@@ -79,6 +79,8 @@ class ViewController: UIViewController {
         }
         
         let task = URLSession.shared.dataTask(with: url) { [weak self] data, response, error in
+            guard let self = self else { return }
+            
             if let error = error {
                 print("Erro ao consultar a URL: \(error.localizedDescription)")
                 return
@@ -92,11 +94,11 @@ class ViewController: UIViewController {
             do {
                 let decoder = JSONDecoder()
                 let jsonObject = try decoder.decode(TickerResponse.self, from: data)
-                let priceFormat = self?.formatPrice(price: NSNumber(value: jsonObject.BRL.buy))
+                let priceFormat = self.formatPrice(price: NSNumber(value: jsonObject.BRL.buy))
                 
                 DispatchQueue.main.async {
-                    self?.numberLabel.text = "R$\(priceFormat)"
-                    self?.updateButton.setTitle("Atualizar", for: .normal)
+                    self.numberLabel.text = "R$\(priceFormat)"
+                    self.updateButton.setTitle("Atualizar", for: .normal)
                 }
             } catch {
                 print("Erro de decodificação do JSON: \(error.localizedDescription)")
