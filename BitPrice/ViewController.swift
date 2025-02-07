@@ -42,10 +42,11 @@ class ViewController: UIViewController {
         button.setTitleColor(.lightGray, for: .highlighted)
         return button
     }()
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
+        view.backgroundColor = .white
         setupLayout()
         loadPrice()
     }
@@ -70,37 +71,24 @@ class ViewController: UIViewController {
     }
     
     func loadPrice() {
-        self.updateButton.setTitle("Atualizando", for: .normal)
+        DispatchQueue.main.async {
+            self.updateButton.setTitle("Atualizando", for: .normal)
+        }
         
-        if let url = URL(string: "https://www.blockchain.com/pt/ticker") {
-            let task = URLSession.shared.dataTask(with: url) { data, response, error in
-                if error == nil {
-                    print("Sucesso! URL funcionando corretamente")
-                    if let dataReturn = data {
-                        do {
-                            if let objectJson = try JSONSerialization.jsonObject(with: dataReturn, options: [])
-                                as? [String: Any] {
-                                if let brl = objectJson["BRL"] as? [String: Any] {
-                                    if let buyBitcoin = brl["buy"] as? Double {
-                                        let priceFormat = self.formatPrice(price: NSNumber(value: buyBitcoin))
-                                        print(priceFormat)
-                                        DispatchQueue.main.async(execute: {
-                                            self.numberLabel.text = "R$" + priceFormat
-                                            self.updateButton.setTitle("Atualizar", for: .normal)
-                                        })
-                                    }
-                                }
-                                //print(objectJson)
-                            }
-                        } catch {
-                            print("Erro ao formatar o objeto JSON")
-                        }
-                    }
-                } else {
-                    print("Erro ao consultar a URL")
+        NetworkManager.shared.fetchData { [weak self] result in
+            guard let self = self else { return }
+            
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let price):
+                    let priceFormat = self.formatPrice(price: NSNumber(value: price))
+                    self.numberLabel.text = "R$\(priceFormat)"
+                    self.updateButton.setTitle("Atualizar", for: .normal)
+                case .failure(let error):
+                    print("Erro ao buscar preço do Bitcoin: \(error)")
+                    self.updateButton.setTitle("Tentar novamente", for: .normal)
                 }
             }
-            task.resume()
         }
     }
     
@@ -112,4 +100,3 @@ class ViewController: UIViewController {
         ])
     }
 }
-
