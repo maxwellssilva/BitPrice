@@ -12,3 +12,10 @@ struct BitcoinPrice: Codable {
 struct TickerResponse: Codable {
     let BRL: BitcoinPrice
 }
+
+enum NetworkError: Error {
+    case invalidURL
+    case requestFailed(Error)
+    case invalidResponse
+    case decodingFailed(Error)
+}

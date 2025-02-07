@@ -71,40 +71,25 @@ class ViewController: UIViewController {
     }
     
     func loadPrice() {
-        self.updateButton.setTitle("Atualizando", for: .normal)
-        
-        guard let url = URL(string: "https://www.blockchain.com/pt/ticker") else {
-            print("Erro: URL inválida")
-            return
+        DispatchQueue.main.async {
+            self.updateButton.setTitle("Atualizando", for: .normal)
         }
         
-        let task = URLSession.shared.dataTask(with: url) { [weak self] data, response, error in
+        NetworkManager.shared.fetchData { [weak self] result in
             guard let self = self else { return }
             
-            if let error = error {
-                print("Erro ao consultar a URL: \(error.localizedDescription)")
-                return
-            }
-            
-            guard let data = data else {
-                print("Erro: Nenhum dado retornado")
-                return
-            }
-            
-            do {
-                let decoder = JSONDecoder()
-                let jsonObject = try decoder.decode(TickerResponse.self, from: data)
-                let priceFormat = self.formatPrice(price: NSNumber(value: jsonObject.BRL.buy))
-                
-                DispatchQueue.main.async {
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let price):
+                    let priceFormat = self.formatPrice(price: NSNumber(value: price))
                     self.numberLabel.text = "R$\(priceFormat)"
                     self.updateButton.setTitle("Atualizar", for: .normal)
+                case .failure(let error):
+                    print("Erro ao buscar preço do Bitcoin: \(error)")
+                    self.updateButton.setTitle("Tentar novamente", for: .normal)
                 }
-            } catch {
-                print("Erro de decodificação do JSON: \(error.localizedDescription)")
             }
         }
-        task.resume()
     }
     
     func setupLayout() {
