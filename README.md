@@ -3,7 +3,7 @@
 Um aplicativo para checar o valor atual do Bitcoin na moeda Real(BRL).
 
 ## Objetivo
-O objetivo da criação deste app era conhecimentos sobre requisições de API utilizando URLSession.
+O objetivo da criação deste app era aplicar os conhecimentos sobre requisições de API utilizando URLSession.
 
 ## Tecnologias utilizadas:
 - Swift
