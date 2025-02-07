@@ -1,4 +1,6 @@
 # App BitPrice
+[![License](https://img.shields.io/badge/license-MIT-blue)](https://github.com/maxwellssilva/BitPrice)
+[![Platform](https://img.shields.io/badge/platform-ios-lightgrey)](https://github.com/maxwellssilva/BitPrice)
 
 Um aplicativo para checar o valor atual do Bitcoin na moeda Real(BRL).
 
